@@ -63,3 +63,21 @@
         </button>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const imgs = document.querySelectorAll('.carousel-img');
+  const prev = document.getElementById('prevSlide');
+  const next = document.getElementById('nextSlide');
+  let idx = 0;
+
+  function show(idxNew) {
+    imgs[idx].classList.remove('active');
+    idx = (idxNew + imgs.length) % imgs.length;
+    imgs[idx].classList.add('active');
+  }
+
+  prev.addEventListener('click', () => show(idx - 1));
+  next.addEventListener('click', () => show(idx + 1));
+});
+</script>
