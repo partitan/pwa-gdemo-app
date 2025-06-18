@@ -9,14 +9,6 @@
 
       <!-- TOP STORIES changed to Travel News -->
 <!--<section class="content" data-ui-load="@lib/controllers/header_auto_hide" data-ui-options="options.autoHidingBars"><div data-ui-load="pages/home/items_list" data-o-rss="_data/news-travel.rss.xml"></div></section>-->
-
-<!-- Display TripAdvisor press releases -->
-<section class="content" data-ui-load="@lib/controllers/header_auto_hide" data-ui-options="options.autoHidingBars">
-  <div data-ui-load="pages/home/items_list"
-       data-o-rss="https://tripadvisor.mediaroom.com/us-press-releases?pagetemplate=rss">
-  </div>
-</section>
-      
 <!-- WORLD -->
     <!--<section class="content" data-ui-load="@lib/controllers/header_auto_hide" data-ui-options="options.autoHidingBars"><div data-ui-load="pages/home/items_list"data-o-rss="_data/news-world.rss.xml"></div></section> -->
 
@@ -26,6 +18,19 @@
     <!-- TRAVEL -->
     <!--<section class="content" data-ui-load="@lib/controllers/header_auto_hide" data-ui-options="options.autoHidingBars"><div data-ui-load="pages/home/items_list"data-o-rss="_data/news-travel.rss.xml"></div></section> -->
 
+<!-- Top Series Carousel -->
+<section class="top-stories" style="margin: 24px 0;">
+  <div id="carousel" class="carousel">
+    <img src="1.webp" alt="Screenshot 1" class="carousel-img active">
+    <img src="2.webp" alt="Screenshot 2" class="carousel-img">
+    <img src="3.webp" alt="Screenshot 3" class="carousel-img">
+    <div class="carousel-controls">
+      <button id="prevSlide">&#8592;</button>
+      <button id="nextSlide">&#8594;</button>
+    </div>
+  </div>
+</section>
+      
 
 
 </div>
