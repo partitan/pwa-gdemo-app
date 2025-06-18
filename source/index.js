@@ -1,5 +1,13 @@
 /* global zuix */
 
+const pagePaths = [
+    '/home',           // page 0
+    '/search',         // page 1
+    '/notifications',  // page 2
+    '/about'           // page 3
+    // Add more if your app has more sections
+];
+
 let drawerLayout;
 let viewPager;
 let topicIndicator;
@@ -96,6 +104,22 @@ function syncPageIndicator(page) {
     if (topicIndicator) topicIndicator.page(page.in);
 }
 
+// function showPage(i) {
+    // show header top-box
+//    zuix.field('header-box')
+//        .children().hide()
+//        .eq(i).show();
+    // show header bottom-box
+//    zuix.field('header-tools')
+//        .children().hide()
+//        .eq(i).show();
+    // show page
+//    zuix.field('pages')
+//        .children().hide()
+//        .eq(i).show();
+//    if (viewPager) viewPager.refresh();
+
+// ######################    
 function showPage(i) {
     // show header top-box
     zuix.field('header-box')
@@ -110,7 +134,15 @@ function showPage(i) {
         .children().hide()
         .eq(i).show();
     if (viewPager) viewPager.refresh();
+
+    // ---- Genesys Journey Virtual Page Tracking ----
+    if (typeof Journey === "function" && pagePaths[i]) {
+        Journey('pageview', { page: pagePaths[i] });
+        console.log('Journey virtual page:', pagePaths[i]);
+    }
 }
+// ######################     
+
 
 // Turn off debug output
 window.zuixNoConsoleOutput = true;
