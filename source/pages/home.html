@@ -8,10 +8,15 @@
 
 
       <!-- TOP STORIES changed to Travel News -->
-<section class="content" data-ui-load="@lib/controllers/header_auto_hide" data-ui-options="options.autoHidingBars">
-  <div data-ui-load="pages/home/items_list" data-o-rss="_data/news-travel.rss.xml"></div>
-</section>
+<!--<section class="content" data-ui-load="@lib/controllers/header_auto_hide" data-ui-options="options.autoHidingBars"><div data-ui-load="pages/home/items_list" data-o-rss="_data/news-travel.rss.xml"></div></section>-->
 
+<!-- Display TripAdvisor press releases -->
+<section class="content" data-ui-load="@lib/controllers/header_auto_hide" data-ui-options="options.autoHidingBars">
+  <div data-ui-load="pages/home/items_list"
+       data-o-rss="https://tripadvisor.mediaroom.com/us-press-releases?pagetemplate=rss">
+  </div>
+</section>
+      
 <!-- WORLD -->
     <!--<section class="content" data-ui-load="@lib/controllers/header_auto_hide" data-ui-options="options.autoHidingBars"><div data-ui-load="pages/home/items_list"data-o-rss="_data/news-world.rss.xml"></div></section> -->
 
