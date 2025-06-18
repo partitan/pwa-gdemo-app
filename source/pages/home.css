@@ -10,3 +10,40 @@
     height: 100vh;
     z-index: 0;
 }
+
+.carousel {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  margin: auto;
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px #0003;
+  background: #111;
+}
+.carousel-img {
+  display: none;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  background: #111;
+}
+.carousel-img.active {
+  display: block;
+}
+.carousel-controls {
+  position: absolute;
+  bottom: 12px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+}
+.carousel-controls button {
+  background: #444c;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
