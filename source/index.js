@@ -142,7 +142,41 @@ function showPage(i) {
     }
 }
 // ######################     
+// 1. Attribute function
+function setJourneyUserAttributes(user) {
+    if (typeof Journey === "function" && user && user.id) {
+        Journey('attribute', { name: 'userId', value: user.id });
+        Journey('attribute', { name: 'email', value: user.email });
+        Journey('attribute', { name: 'accountType', value: user.accountType });
+        console.log('Journey attributes sent:', user);
+    }
+}
 
+// 2. On app load, send if user is already known
+let user = {
+    id: localStorage.getItem('userId'),
+    email: localStorage.getItem('userEmail'),
+    accountType: localStorage.getItem('accountType')
+};
+if (user.id && user.email && user.accountType) {
+    setJourneyUserAttributes(user);
+}
+
+// 3. After login, call like this:
+function onUserLogin(userData) {
+    localStorage.setItem('userId', userData.id);
+    localStorage.setItem('userEmail', userData.email);
+    localStorage.setItem('accountType', userData.accountType);
+    setJourneyUserAttributes(userData);
+    // ... your other login logic ...
+}
+
+// Example login event:
+//onUserLogin({
+//    id: 'user123',
+//    email: 'john.doe@example.com',
+//    accountType: 'premium'
+//});
 
 // Turn off debug output
 window.zuixNoConsoleOutput = true;
