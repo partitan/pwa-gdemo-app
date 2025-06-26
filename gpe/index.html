@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SPA Test | Genesys Tracking</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    nav { background: #2874A6; padding: 1em; }
+    nav a { color: white; margin-right: 1em; }
+    main { padding: 2em; }
+  </style>
+  <!-- Predictive Engagement (Journey) Script -->
+  <script>
+    (function (g, e, n, es, ys) {
+      g['_genesysJourney'] = e;
+      g[e] = g[e] || function () { (g[e].q = g[e].q || []).push(arguments) };
+      ys = document.createElement('script');
+      ys.async = 1;
+      ys.src = n;
+      document.head.appendChild(ys);
+    })(window, 'Journey', 'https://apps.mypurecloud.jp/genesys-journey/journey.min.js');
+  </script>
+</head>
+<body>
+  <nav>
+    <a href="#page1">Page 1</a>
+    <a href="#page2">Page 2</a>
+  </nav>
+  <main id="app"></main>
+  <script>
+    const pages = {
+      page1: `<h2>Page 1</h2><p>This is page 1. Switch using the menu.</p>`,
+      page2: `<h2>Page 2</h2><p>This is page 2. Switch using the menu.</p>`
+    };
+    function route() {
+      const page = location.hash.replace('#', '') || 'page1';
+      document.getElementById('app').innerHTML = pages[page] || pages.page1;
+      // Track with Genesys Journey
+      if (typeof Journey === "function") {
+        Journey('pageview', { page: `/${page}` });
+        console.log('Sent pageview:', page);
+      }
+    }
+    window.addEventListener('hashchange', route);
+    window.addEventListener('DOMContentLoaded', route);
+  </script>
+</body>
+</html>
