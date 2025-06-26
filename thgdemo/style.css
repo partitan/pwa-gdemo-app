@@ -1,5 +1,49 @@
 body { font-family: sans-serif; margin: 0; }
-nav { background: #2874A6; padding: 1em; display: flex; gap: 1em; }
-nav a { color: white; text-decoration: none; }
-nav a:hover { text-decoration: underline; }
+
 main { padding: 2em; }
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; /* allow wrapping on small screens */
+  padding: 8px 16px;
+  background: #2874A6;
+  color: #fff;
+}
+
+.nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.nav-links a {
+  color: #fff;
+  text-decoration: none;
+  margin-right: 12px;
+}
+
+.nav-user {
+  font-size: 1em;
+  color: #fff;
+  word-break: break-all;
+}
+
+@media (max-width: 600px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 8px;
+  }
+  .nav-links {
+    width: 100%;
+    justify-content: flex-start;
+    margin-bottom: 6px;
+  }
+  .nav-user {
+    width: 100%;
+    font-size: 0.95em;
+    margin-bottom: 4px;
+  }
+}
