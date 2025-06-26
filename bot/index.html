@@ -1,89 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Guest Chat to Genesys Cloud</title>
-  <style>
-    /* basic styling */
-    #chat { width: 300px; margin: 2em auto; font-family: sans-serif; }
-    #log { height: 200px; border: 1px solid #ccc; padding: 0.5em; overflow-y: auto; }
-    #chatInput { width: calc(100% - 60px); padding: 0.5em; }
-    #sendBtn { width: 50px; padding: 0.5em; }
-    .message { margin: 0.2em 0; }
-    .you    { color: blue; }
-    .agent  { color: green; }
-  </style>
-</head>
+<html>
+<head><meta charset="utf-8"/></head>
 <body>
-  <div id="chat">
-    <div id="log"></div>
-    <input id="chatInput" autocomplete="off" placeholder="Type a message…"/>
-    <button id="sendBtn">Send</button>
-  </div>
-
+  <div id="log">Session starting…</div>
+  <input id="in"/><button id="btn">Send</button>
   <script>
-    // === CONFIGURE THESE ===
     const deploymentId = 'd7a4ab4b-5374-48dc-abff-20e94d283345';
     const region       = 'mypurecloud.jp';
-    // ========================
-
-    const socketUrl = `wss://messaging.${region}/socket/websocket?deploymentId=${deploymentId}`;
-    const socket    = new WebSocket(socketUrl);
-
-    let conversationId, participantId;
+    const socket       = new WebSocket(
+      `wss://webmessaging.${region}/v1?deploymentId=${deploymentId}`
+    );
+    let convId, partId;
     const logEl = document.getElementById('log');
-    const log = (who, text) => {
-      const div = document.createElement('div');
-      div.className = `message ${who}`;
-      div.textContent = (who==='you' ? 'You: ' : 'Agent: ') + text;
-      logEl.appendChild(div);
-      logEl.scrollTop = logEl.scrollHeight;
+    const log = (who, txt) => {
+      const d = document.createElement('div');
+      d.textContent = (who==='you'?'You: ':'Agent: ') + txt;
+      logEl.appendChild(d);
     };
-
-    socket.onopen = () => {
-      // Start a guest session
-      socket.send(JSON.stringify({
-        action:     'configureSession',
-        deploymentId,
-        tracingId:  crypto.randomUUID()
-      }));
-    };
-
-    socket.onmessage = ({ data }) => {
-      const msg = JSON.parse(data);
-
-      // Session ready → grab IDs
-      if (msg.action === 'configureSessionResponse' && msg.body) {
-        conversationId = msg.body.conversationId;
-        participantId  = msg.body.participantId;
-        logEl.textContent = '';  // clear any “loading…” text
-        log('agent', 'Session configured. You can start chatting.');
+    socket.onopen = () => socket.send(JSON.stringify({
+      action:'configureSession', deploymentId, tracingId:crypto.randomUUID()
+    }));
+    socket.onmessage = ({data}) => {
+      const m = JSON.parse(data);
+      if (m.action==='configureSessionResponse') {
+        convId=m.body.conversationId; partId=m.body.participantId;
+        log('agent','Session configured. Say hi!');
       }
-
-      // Incoming chat from agent or flow
-      if (msg.type === 'message' && msg.body && msg.body.text) {
-        log('agent', msg.body.text);
-      }
+      if (m.type==='message'&&m.body?.text) log('agent',m.body.text);
     };
-
-    // Send button
-    document.getElementById('sendBtn').addEventListener('click', () => {
-      const input = document.getElementById('chatInput');
-      const text  = input.value.trim();
-      if (!text || !conversationId) return;
-
-      // Send visitor message
+    document.getElementById('btn').onclick = () => {
+      const txt = document.getElementById('in').value.trim();
+      if (!convId||!txt) return;
       socket.send(JSON.stringify({
-        action:        'onMessage',
-        conversationId,
-        participantId,
-        body:           { text },
-        contentType:    'text/plain'
+        action:'onMessage', conversationId:convId,
+        participantId:partId,
+        body:{text:txt}, contentType:'text/plain'
       }));
-      log('you', text);
-      input.value = '';
-      input.focus();
-    });
+      log('you',txt);
+      document.getElementById('in').value='';
+    };
   </script>
 </body>
 </html>
