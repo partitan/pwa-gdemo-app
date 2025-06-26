@@ -38,8 +38,8 @@ function setupLogin() {
 
       // Genesys Journey - send user attribute
       if (typeof Journey === "function") {
-        Journey('attribute', { name: 'userId', value: email.split('@')[0] });
-        Journey('attribute', { name: 'email', value: email });
+        Journey('attribute', { name: 'Name', value: email.split('@')[0] });
+        Journey('attribute', { name: 'Email', value: email });
       }
 
       // Go to home page and trigger pageview
