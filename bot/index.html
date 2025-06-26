@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Genesys Headless Chat Demo</title>
+  <title>Headless Web Messaging – Minimal Demo</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -16,16 +16,11 @@
       height: 300px;
       overflow-y: auto;
       margin-bottom: 10px;
+      background: #fafafa;
     }
-    .msg {
-      margin: 4px 0;
-    }
-    .me {
-      color: #0073e6;
-    }
-    .agent {
-      color: #28a745;
-    }
+    .msg { margin: 4px 0; }
+    .me    { color: #0073e6; }
+    .agent { color: #28a745; }
     #input-row {
       display: flex;
       gap: 8px;
@@ -39,7 +34,7 @@
       padding: 8px 16px;
       font-size: 14px;
       background: #0073e6;
-      color: white;
+      color: #fff;
       border: none;
       border-radius: 4px;
       cursor: pointer;
@@ -50,19 +45,24 @@
     }
   </style>
 
-  <!-- Genesys Bootstrap Snippet (Headless Deployment) -->
+  <!-- Genesys Bootstrap Snippet – HEADLESS MODE ENABLED -->
   <script type="text/javascript" charset="utf-8">
     (function (g, e, n, es, ys) {
       g['_genesysJs'] = e;
       g[e] = g[e] || function () {
-        (g[e].q = g[e].q || []).push(arguments)
+        (g[e].q = g[e].q || []).push(arguments);
       };
       g[e].t = 1 * new Date();
       g[e].c = es;
-      ys = document.createElement('script'); ys.async = 1; ys.src = n; ys.charset = 'utf-8'; document.head.appendChild(ys);
+      ys = document.createElement('script');
+      ys.async = 1;
+      ys.src = n;
+      ys.charset = 'utf-8';
+      document.head.appendChild(ys);
     })(window, 'Genesys', 'https://apps.mypurecloud.jp/genesys-bootstrap/genesys.min.js', {
       environment: 'prod-apne1',
-      deploymentId: 'd7a4ab4b-5374-48dc-abff-20e94d283345'
+      deploymentId: 'd7a4ab4b-5374-48dc-abff-20e94d283345',
+      headlessMode: true           // <-- Hides all Genesys UI / bubbles
     });
   </script>
 </head>
@@ -75,81 +75,58 @@
   </div>
 
   <script>
-    const chatBox   = document.getElementById('chat-box');
-    const input     = document.getElementById('msg-input');
-    const sendBtn   = document.getElementById('send-btn');
+    const chatBox = document.getElementById('chat-box');
+    const input   = document.getElementById('msg-input');
+    const sendBtn = document.getElementById('send-btn');
 
     let conversationId = null;
     let participantId  = null;
 
-    /** Helper to append a message */
-    function appendMsg(who, text) {
+    const appendMsg = (who, text) => {
       const div = document.createElement('div');
       div.className = `msg ${who}`;
       div.textContent = `${who === 'me' ? 'You' : 'Agent'}: ${text}`;
       chatBox.appendChild(div);
       chatBox.scrollTop = chatBox.scrollHeight;
-    }
+    };
 
-    /** Wait for the Messenger (MessagingService) to be ready */
+    // Enable send button as soon as the SDK is ready & conversation starts
     Genesys('subscribe', 'MessagingService.ready', () => {
-      console.log('MessagingService ready – starting conversation…');
-
-      // Start the conversation explicitly (safer than implicit)
       Genesys('command', 'MessagingService.startConversation', {}, (err, res) => {
-        if (err) {
-          console.error('Conversation start failed', err);
-          appendMsg('agent', 'Conversation start failed – check console');
-          return;
-        }
+        if (err) { console.error(err); return; }
         conversationId = res.conversationId;
         participantId  = res.participantId;
-        console.log('Conversation started', res);
         sendBtn.disabled = false;
         appendMsg('agent', 'Session started – say hi!');
       });
     });
 
-    /** Handle incoming messages */
-    Genesys('subscribe', 'MessagingService.messagesReceived', (_evt, data) => {
-      if (data.body && data.body.text) {
-        appendMsg('agent', data.body.text);
-      }
+    // Incoming messages
+    Genesys('subscribe', 'MessagingService.messagesReceived', (_e, data) => {
+      if (data.body?.text) appendMsg('agent', data.body.text);
     });
 
-    /** Handle errors */
-    Genesys('subscribe', 'MessagingService.error', (_evt, data) => {
-      console.error('Genesys error', data);
-      appendMsg('agent', `Error: ${data.body?.code || 'unknown'}`);
-    });
-
-    /** Send button click */
-    sendBtn.addEventListener('click', () => {
-      const text = input.value.trim();
-      if (!text || !conversationId || !participantId) return;
-
+    // Send message helper
+    const sendMessage = () => {
+      const txt = input.value.trim();
+      if (!txt || !conversationId) return;
       Genesys('command', 'MessagingService.sendMessage', {
         conversationId,
         participantId,
-        text,
+        text: txt,
         contentType: 'text/plain'
       }, (err) => {
-        if (err) {
-          console.error('Send failed', err);
-          return;
-        }
-        appendMsg('me', text);
+        if (err) { console.error(err); return; }
+        appendMsg('me', txt);
         input.value = '';
       });
-    });
+    };
 
-    /** Enter key submits the message */
+    // Click or Enter sends immediately
+    sendBtn.addEventListener('click', sendMessage);
     input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        sendBtn.click();
-      }
+      if (e.key === 'Enter') sendMessage();
     });
-
   </script>
 </body>
 </html>
