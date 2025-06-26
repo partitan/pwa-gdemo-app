@@ -43,27 +43,31 @@
       background: #aaa;
       cursor: not-allowed;
     }
+    /* Hide any fallback Genesys launcher if headless wasn't respected */
+    .genesys-web-messaging-launcher, .genesys-messenger__launcher { display:none !important; }
   </style>
 
-  <!-- Genesys Bootstrap Snippet – HEADLESS MODE ENABLED -->
-  <script type="text/javascript" charset="utf-8">
-    (function (g, e, n, es, ys) {
-      g['_genesysJs'] = e;
-      g[e] = g[e] || function () {
-        (g[e].q = g[e].q || []).push(arguments);
-      };
-      g[e].t = 1 * new Date();
-      g[e].c = es;
-      ys = document.createElement('script');
-      ys.async = 1;
-      ys.src = n;
-      ys.charset = 'utf-8';
-      document.head.appendChild(ys);
-    })(window, 'Genesys', 'https://apps.mypurecloud.jp/genesys-bootstrap/genesys.min.js', {
-      environment: 'prod-apne1',
-      deploymentId: 'd7a4ab4b-5374-48dc-abff-20e94d283345',
-      headlessMode: true           // <-- Hides all Genesys UI / bubbles
-    });
+  <!-- WIDGETS SNIPPET WITH HEADLESS MODE -->
+  <script>
+    window.genesys = {
+      widgets: {
+        main: { debug: false },
+        webMessaging: {
+          headlessMode: true, // <- prevents default launcher/window
+          transport: {
+            type: 'purecloud-v2-sockets',
+            dataURL: 'https://api.mypurecloud.jp',
+            deploymentId: 'd7a4ab4b-5374-48dc-abff-20e94d283345'
+          }
+        }
+      }
+    };
+    (function(){
+      const s = document.createElement('script');
+      s.src    = 'https://apps.mypurecloud.jp/widgets/genesys.min.js';
+      s.async  = true;
+      document.head.appendChild(s);
+    })();
   </script>
 </head>
 <body>
@@ -90,7 +94,7 @@
       chatBox.scrollTop = chatBox.scrollHeight;
     };
 
-    // Enable send button as soon as the SDK is ready & conversation starts
+    // Enable send button once MessagingService is ready & conversation is started
     Genesys('subscribe', 'MessagingService.ready', () => {
       Genesys('command', 'MessagingService.startConversation', {}, (err, res) => {
         if (err) { console.error(err); return; }
