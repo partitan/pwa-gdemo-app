@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Page 1 | Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <nav>
+    <a href="page1.html">Page 1</a>
+    <a href="page2.html">Page 2</a>
+  </nav>
+  <h2>This is Page 1</h2>
+  <!-- Journey Script -->
+  <script>
+    (function (g, e, n, es, ys) {
+      g['_genesysJourney'] = e;
+      g[e] = g[e] || function () { (g[e].q = g[e].q || []).push(arguments) };
+      ys = document.createElement('script');
+      ys.async = 1;
+      ys.src = n;
+      document.head.appendChild(ys);
+    })(window, 'Journey', 'https://apps.mypurecloud.jp/genesys-journey/journey.min.js');
+  </script>
+  <script>
+    // Track pageview
+    setTimeout(function() {
+      if (typeof Journey === "function") Journey('pageview', { page: '/page1' });
+    }, 400); // (Delay เพื่อให้ lib โหลดจริง)
+  </script>
+</body>
+</html>
