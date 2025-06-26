@@ -2,13 +2,77 @@ const routes = {
   home: 'home.html',
   product: 'product.html',
   search: 'search.html',
-  contact: 'contact.html'
+  contact: 'contact.html',
+  login: 'login.html'
 };
 
 async function loadPage(page) {
-  const resp = await fetch(routes[page] || routes['home']);
-  const html = await resp.text();
-  document.getElementById('app').innerHTML = html;
+  let pageFile = routes[page] || routes['home'];
+  try {
+    const resp = await fetch(pageFile);
+    if (resp.ok) {
+      const html = await resp.text();
+      document.getElementById('app').innerHTML = html;
+
+      // If loading the login page, add login logic
+      if (page === 'login') setupLogin();
+      updateUserInfo();
+    } else {
+      document.getElementById('app').innerHTML = "<h2>Page not found.</h2>";
+    }
+  } catch (e) {
+    document.getElementById('app').innerHTML = "<h2>Page load error.</h2>";
+  }
+}
+
+function setupLogin() {
+  const form = document.getElementById('loginForm');
+  if (form) {
+    form.onsubmit = function(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      // No password check
+      localStorage.setItem('userEmail', email);
+      localStorage.setItem('userId', email.split('@')[0]);
+      localStorage.setItem('loggedIn', 'true');
+
+      // Genesys Journey - send user attribute
+      if (typeof Journey === "function") {
+        Journey('attribute', { name: 'userId', value: email.split('@')[0] });
+        Journey('attribute', { name: 'email', value: email });
+      }
+
+      // Go to home page and trigger pageview
+      location.hash = '#home';
+      updateUserInfo();
+    };
+  }
+}
+
+function updateUserInfo() {
+  const userInfo = document.getElementById('userInfo');
+  const loginNav = document.getElementById('loginNav');
+  if (localStorage.getItem('loggedIn') === 'true') {
+    const email = localStorage.getItem('userEmail');
+    userInfo.innerHTML = ` | Logged in as <b>${email}</b> <a href="#" id="logoutBtn">(Logout)</a>`;
+    loginNav.style.display = 'none';
+    setTimeout(() => {
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        logoutBtn.onclick = function() {
+          localStorage.removeItem('loggedIn');
+          localStorage.removeItem('userEmail');
+          localStorage.removeItem('userId');
+          loginNav.style.display = '';
+          userInfo.innerHTML = '';
+          location.hash = '#login';
+        };
+      }
+    }, 100);
+  } else {
+    userInfo.innerHTML = '';
+    if (loginNav) loginNav.style.display = '';
+  }
 }
 
 //function route() {
@@ -17,17 +81,28 @@ async function loadPage(page) {
 //}
 
 function route() {
-  const page = location.hash.replace('#', '') || 'home';
-  loadPage(page);
+  // Check login state
+  const loggedIn = localStorage.getItem('loggedIn') === 'true';
+  // If not logged in, always show login page
+  const page = location.hash.replace('#', '') || (loggedIn ? 'home' : 'login');
+  // If user tries to navigate to anything but login and not logged in, force login
+  if (!loggedIn && page !== 'login') {
+    location.hash = '#login';
+    loadPage('login');
+  } else {
+    loadPage(page);
+  }
 
-  // Genesys Journey: send virtual pageview and attributes
+  // Genesys Journey: send virtual pageview and user attributes if available
   if (typeof Journey === "function") {
     Journey('pageview', { page: `/${page}` });
     console.log('Journey virtual pageview:', page);
 
-    // Optional: send user info if you have it
-    Journey('attribute', { name: 'userId', value: 'user123' });
-    Journey('attribute', { name: 'email', value: 'john.doe@example.com' });
+    // Use real user info if available
+    const userId = localStorage.getItem('userId') || 'guest';
+    const email = localStorage.getItem('userEmail') || '';
+    Journey('attribute', { name: 'userId', value: userId });
+    if (email) Journey('attribute', { name: 'email', value: email });
   }
 }
 
