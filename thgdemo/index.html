@@ -10,20 +10,46 @@
 </head>
 
 <!-- Genesys Predictive Engagement (Journey) Tracking -->
-<script>
+<!-- #############################################Add GC Web MSG############################################## -->
+
+  <script>
   (function (g, e, n, es, ys) {
     g['_genesysJourney'] = e;
-    g[e] = g[e] || function () { (g[e].q = g[e].q || []).push(arguments); };
+    g[e] = g[e] || function () { (g[e].q = g[e].q || []).push(arguments) };
     ys = document.createElement('script');
     ys.async = 1;
     ys.src = n;
     document.head.appendChild(ys);
+  })(window, 'Journey', 'https://apps.mypurecloud.jp/genesys-journey/genesys.min.js');
+</script>
+  
+<script type="text/javascript" charset="utf-8">
+  (function(g, e, n, es, ys) {
+    g['_genesysJs'] = e;
+    g[e] = g[e] || function() {
+      (g[e].q = g[e].q || []).push(arguments)
+    };
+    g[e].t = 1 * new Date();
+    g[e].c = es;
+    ys = document.createElement('script');
+    ys.async = 1;
+    ys.src = n;
+    ys.charset = 'utf-8';
+    document.head.appendChild(ys);
   })(
     window,
-    'Journey',
-    'https://apps.mypurecloud.jp/genesys-journey/genesys.min.js' // <-- Use your region
+    'Genesys',
+    'https://apps.mypurecloud.jp/genesys-bootstrap/genesys.min.js',
+    {
+      //environment: 'ap-northeast-1 ',    // e.g. 'ap-northeast-1'
+      //deploymentId: '4d436241-114b-40e6-aef2-66435fb2ae8c', // Your real deploymentId
+    environment: 'apne1',
+    deploymentId: '4d436241-114b-40e6-aef2-66435fb2ae8c' ,
+      debug: false
+    }
   );
 </script>  
+<!-- ############################################# End GC Web MSG############################################## -->
   
 <body>
   <nav>
