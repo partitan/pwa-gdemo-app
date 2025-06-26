@@ -5,9 +5,8 @@
   <title>Product | Demo Website</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="style.css">
-</head>
-
-   <script>
+  <!-- Genesys Predictive Engagement (Journey) -->
+  <script>
     (function (g, e, n, es, ys) {
       g['_genesysJourney'] = e;
       g[e] = g[e] || function () { (g[e].q = g[e].q || []).push(arguments) };
@@ -17,19 +16,29 @@
       document.head.appendChild(ys);
     })(window, 'Journey', 'https://apps.mypurecloud.jp/genesys-journey/journey.min.js');
   </script>
-  
+</head>
 <body>
   <nav>
-       <a href="login.html">Login</a> 
+    <a href="login.html">Login</a> 
     <a href="index.html">Home</a>
     <a href="product.html">Product</a>
     <a href="search.html">Search</a>
     <a href="contact.html">Contact</a>
-   
   </nav>
   <main>
     <h2>Our Product</h2>
     <p>Describe your product here.</p>
   </main>
+  <script>
+    // Track virtual pageview for Product page
+    if (typeof Journey === "function") {
+      Journey('pageview', { page: '/product' });
+      // ส่ง attribute เฉพาะเมื่อมีข้อมูล user
+      const userId = localStorage.getItem('userId') || 'guest';
+      const email = localStorage.getItem('userEmail') || '';
+      Journey('attribute', { name: 'userId', value: userId });
+      if (email) Journey('attribute', { name: 'email', value: email });
+    }
+  </script>
 </body>
 </html>
