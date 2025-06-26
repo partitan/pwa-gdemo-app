@@ -1,15 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>SPA Test | Genesys Tracking</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    nav { background: #2874A6; padding: 1em; }
-    nav a { color: white; margin-right: 1em; }
-    main { padding: 2em; }
-  </style>
-  <!-- Predictive Engagement (Journey) Script -->
+  <title>Journey Test</title>
   <script>
     (function (g, e, n, es, ys) {
       g['_genesysJourney'] = e;
@@ -22,27 +15,17 @@
   </script>
 </head>
 <body>
-  <nav>
-    <a href="#page1">Page 1</a>
-    <a href="#page2">Page 2</a>
-  </nav>
-  <main id="app"></main>
+  <button onclick="send()">Send Email Attribute</button>
   <script>
-    const pages = {
-      page1: `<h2>Page 1</h2><p>This is page 1. Switch using the menu.</p>`,
-      page2: `<h2>Page 2</h2><p>This is page 2. Switch using the menu.</p>`
-    };
-    function route() {
-      const page = location.hash.replace('#', '') || 'page1';
-      document.getElementById('app').innerHTML = pages[page] || pages.page1;
-      // Track with Genesys Journey
+    function send() {
       if (typeof Journey === "function") {
-        Journey('pageview', { page: `/${page}` });
-        console.log('Sent pageview:', page);
+        Journey('attribute', { name: 'email', value: 'test@demo.com' });
+        Journey('attribute', { name: 'name', value: 'Partitan Test' });
+        alert('Sent!');
+      } else {
+        alert('Journey not loaded yet');
       }
     }
-    window.addEventListener('hashchange', route);
-    window.addEventListener('DOMContentLoaded', route);
   </script>
 </body>
 </html>
