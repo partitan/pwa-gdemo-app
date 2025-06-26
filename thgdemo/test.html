@@ -2,8 +2,8 @@
 <h2>Send Custom Attributes to Genesys Cloud</h2>
 <form id="attrForm">
   <label>Name: <input type="text" id="name" value="สมชาย"></label><br>
-  <label>Work Email: <input type="Work Email" id="Work Email" value="partitan@gmail.com"></label><br>
-  <label>Mobile Phone: <input type="text" id="mobile" value="+66812345678"></label><br>
+  <label>Work Email: <input type="Email" id="Email" value="partitan@gmail.com"></label><br>
+  <label>Mobile Phone: <input type="text" id="Mobile" value="+66812345678"></label><br>
   <label>Title: <input type="text" id="Title" value="SC"></label><br>
   <button type="submit">Send to Genesys</button>
 </form>
@@ -13,15 +13,15 @@ document.getElementById('attrForm').onsubmit = function(e) {
     e.preventDefault();
     // Get values
     var name = document.getElementById('name').value || '';
-    var email = document.getElementById('email').value || '';
-    var mobile = document.getElementById('mobile').value || '';
-    var job = document.getElementById('job').value || '';
+    var email = document.getElementById('Work Email').value || '';
+    var mobile = document.getElementById('Mobile').value || '';
+    var job = document.getElementById('Title').value || '';
     // Genesys Predictive Engagement API
     if (typeof Journey === "function") {
-        Journey('attribute', { name: 'userId', value: name });
-        Journey('attribute', { name: 'email', value: email });
-        Journey('attribute', { name: 'mobilePhone', value: mobile });
-        Journey('attribute', { name: 'jobTitle', value: job });
+        Journey('attribute', { name: 'Name', value: name });
+        Journey('attribute', { name: 'Work Email', value: Email });
+        Journey('attribute', { name: 'Mobile', value: Mobile });
+        Journey('attribute', { name: 'Title', value: Title });
         document.getElementById('status').innerText = 'Attributes sent to Genesys!';
     } else {
         document.getElementById('status').innerText = 'Journey library not loaded.';
