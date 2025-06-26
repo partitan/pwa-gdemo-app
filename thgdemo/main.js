@@ -11,9 +11,20 @@ async function loadPage(page) {
   document.getElementById('app').innerHTML = html;
 }
 
+//function route() {
+//  const page = location.hash.replace('#', '') || 'home';
+//  loadPage(page);
+//}
+
 function route() {
   const page = location.hash.replace('#', '') || 'home';
   loadPage(page);
+
+  // Genesys Journey: send virtual pageview
+  if (typeof Journey === "function") {
+    Journey('pageview', { page: `/${page}` });
+    console.log('Journey virtual pageview:', page);
+  }
 }
 
 // Initial load
