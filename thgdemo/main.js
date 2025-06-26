@@ -3,7 +3,8 @@ const routes = {
   product: 'product.html',
   search: 'search.html',
   contact: 'contact.html',
-  login: 'login.html'
+  login: 'login.html',
+ test: 'test.html' 
 };
 
 async function loadPage(page) {
