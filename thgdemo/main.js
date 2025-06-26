@@ -36,11 +36,6 @@ function setupLogin() {
       localStorage.setItem('userEmail', email);
       localStorage.setItem('userId', email.split('@')[0]);
       localStorage.setItem('loggedIn', 'true');
-
-      // Genesys Journey - send user attribute
-      if (typeof Journey === "function") {
-        Journey('attribute', { name: 'Name', value: email.split('@')[0] });
-        Journey('attribute', { name: 'Email', value: email });
       }
 
       // Go to home page and trigger pageview
