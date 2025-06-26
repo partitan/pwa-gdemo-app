@@ -8,6 +8,23 @@
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
 </head>
+
+<!-- Genesys Predictive Engagement (Journey) Tracking -->
+<script>
+  (function (g, e, n, es, ys) {
+    g['_genesysJourney'] = e;
+    g[e] = g[e] || function () { (g[e].q = g[e].q || []).push(arguments); };
+    ys = document.createElement('script');
+    ys.async = 1;
+    ys.src = n;
+    document.head.appendChild(ys);
+  })(
+    window,
+    'Journey',
+    'https://apps.mypurecloud.jp/genesys-journey/genesys.min.js' // <-- Use your region
+  );
+</script>  
+  
 <body>
   <nav>
     <a href="#home">Home</a>
