@@ -20,10 +20,14 @@ function route() {
   const page = location.hash.replace('#', '') || 'home';
   loadPage(page);
 
-  // Genesys Journey: send virtual pageview
+  // Genesys Journey: send virtual pageview and attributes
   if (typeof Journey === "function") {
     Journey('pageview', { page: `/${page}` });
     console.log('Journey virtual pageview:', page);
+
+    // Optional: send user info if you have it
+    Journey('attribute', { name: 'userId', value: 'user123' });
+    Journey('attribute', { name: 'email', value: 'john.doe@example.com' });
   }
 }
 
