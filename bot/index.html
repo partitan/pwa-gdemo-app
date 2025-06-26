@@ -2,78 +2,154 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Custom Launcher Demo</title>
+  <title>Genesys Headless Chat Demo</title>
   <style>
-    /* your custom launcher styling */
-    #custom-launcher {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px auto;
+      max-width: 600px;
+    }
+    #chat-box {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 10px;
+      height: 300px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+    }
+    .msg {
+      margin: 4px 0;
+    }
+    .me {
+      color: #0073e6;
+    }
+    .agent {
+      color: #28a745;
+    }
+    #input-row {
+      display: flex;
+      gap: 8px;
+    }
+    #input-row input {
+      flex: 1;
+      padding: 8px;
+      font-size: 14px;
+    }
+    #input-row button {
+      padding: 8px 16px;
+      font-size: 14px;
       background: #0073e6;
       color: white;
       border: none;
-      padding: 12px;
-      border-radius: 50%;
-      font-size: 18px;
+      border-radius: 4px;
       cursor: pointer;
-      display: none;    /* hidden until widget is ready */
+    }
+    #input-row button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
     }
   </style>
 
-  <!-- 1) Load the Genesys Web Messenger widget -->
-  <script>
-    window.genesys = {
-      widgets: {
-        main: { debug: false },
-        webMessaging: {
-          transport: {
-            type:     'purecloud-v2-sockets',
-            dataURL:  'https://api.mypurecloud.jp',
-            deploymentId: 'd7a4ab4b-5374-48dc-abff-20e94d283345'
-          }
-        }
-      }
-    };
-    (function(){
-      var s = document.createElement('script');
-      s.src = 'https://apps.mypurecloud.jp/widgets/genesys.min.js';
-      s.async = true;
-      document.head.appendChild(s);
-    })();
+  <!-- Genesys Bootstrap Snippet (Headless Deployment) -->
+  <script type="text/javascript" charset="utf-8">
+    (function (g, e, n, es, ys) {
+      g['_genesysJs'] = e;
+      g[e] = g[e] || function () {
+        (g[e].q = g[e].q || []).push(arguments)
+      };
+      g[e].t = 1 * new Date();
+      g[e].c = es;
+      ys = document.createElement('script'); ys.async = 1; ys.src = n; ys.charset = 'utf-8'; document.head.appendChild(ys);
+    })(window, 'Genesys', 'https://apps.mypurecloud.jp/genesys-bootstrap/genesys.min.js', {
+      environment: 'prod-apne1',
+      deploymentId: 'd7a4ab4b-5374-48dc-abff-20e94d283345'
+    });
   </script>
 </head>
 <body>
-
-  <!-- 2) Your custom launcher button -->
-  <button id="custom-launcher">💬</button>
+  <h2>Headless Web Messaging Demo</h2>
+  <div id="chat-box"></div>
+  <div id="input-row">
+    <input id="msg-input" placeholder="Type a message…" autocomplete="off" />
+    <button id="send-btn" disabled>Send</button>
+  </div>
 
   <script>
-    const launcher = document.getElementById('custom-launcher');
-    let isOpen = false;
+    const chatBox   = document.getElementById('chat-box');
+    const input     = document.getElementById('msg-input');
+    const sendBtn   = document.getElementById('send-btn');
 
-    // 3) Show the launcher once the messenger is ready
-    Genesys('subscribe', 'Messenger.ready', () => {
-      launcher.style.display = 'block';
+    let conversationId = null;
+    let participantId  = null;
+
+    /** Helper to append a message */
+    function appendMsg(who, text) {
+      const div = document.createElement('div');
+      div.className = `msg ${who}`;
+      div.textContent = `${who === 'me' ? 'You' : 'Agent'}: ${text}`;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    /** Wait for the Messenger (MessagingService) to be ready */
+    Genesys('subscribe', 'MessagingService.ready', () => {
+      console.log('MessagingService ready – starting conversation…');
+
+      // Start the conversation explicitly (safer than implicit)
+      Genesys('command', 'MessagingService.startConversation', {}, (err, res) => {
+        if (err) {
+          console.error('Conversation start failed', err);
+          appendMsg('agent', 'Conversation start failed – check console');
+          return;
+        }
+        conversationId = res.conversationId;
+        participantId  = res.participantId;
+        console.log('Conversation started', res);
+        sendBtn.disabled = false;
+        appendMsg('agent', 'Session started – say hi!');
+      });
     });
 
-    // 4) Keep track of open/close so your icon can toggle
-    Genesys('subscribe', 'Messenger.windowOpened', () => {
-      isOpen = true;
-      launcher.textContent = '🔽';    // arrow down when open
-    });
-    Genesys('subscribe', 'Messenger.windowClosed', () => {
-      isOpen = false;
-      launcher.textContent = '💬';    // chat bubble when closed
-    });
-
-    // 5) Wire up your button to show/hide the widget
-    launcher.addEventListener('click', () => {
-      if (isOpen) {
-        Genesys('command', 'Messenger.hide');
-      } else {
-        Genesys('command', 'Messenger.show');
+    /** Handle incoming messages */
+    Genesys('subscribe', 'MessagingService.messagesReceived', (_evt, data) => {
+      if (data.body && data.body.text) {
+        appendMsg('agent', data.body.text);
       }
     });
+
+    /** Handle errors */
+    Genesys('subscribe', 'MessagingService.error', (_evt, data) => {
+      console.error('Genesys error', data);
+      appendMsg('agent', `Error: ${data.body?.code || 'unknown'}`);
+    });
+
+    /** Send button click */
+    sendBtn.addEventListener('click', () => {
+      const text = input.value.trim();
+      if (!text || !conversationId || !participantId) return;
+
+      Genesys('command', 'MessagingService.sendMessage', {
+        conversationId,
+        participantId,
+        text,
+        contentType: 'text/plain'
+      }, (err) => {
+        if (err) {
+          console.error('Send failed', err);
+          return;
+        }
+        appendMsg('me', text);
+        input.value = '';
+      });
+    });
+
+    /** Enter key submits the message */
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        sendBtn.click();
+      }
+    });
+
   </script>
 </body>
 </html>
