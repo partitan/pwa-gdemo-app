@@ -1,28 +1,31 @@
-<!-- test.html -->
-<h2>Send Custom Attributes to Genesys Cloud</h2>
+<h2>Send Standard Attributes to Genesys Cloud</h2>
 <form id="attrForm">
-  <label>Name: <input type="text" id="name" value="สมชาย"></label><br>
-  <label>Work Email: <input type="email" id="email" value="partitan@gmail.com"></label><br>
-  <label>Mobile Phone: <input type="text" id="mobile" value="+66812345678"></label><br>
-  <label>Title: <input type="text" id="title" value="SC"></label><br>
+  <label>Full Name: <input type="text" id="fullName" value="สมชาย ใจดี"></label><br>
+  <label>Email: <input type="email" id="email" value="partitan@gmail.com"></label><br>
+  <label>Phone: <input type="text" id="phone" value="+66812345678"></label><br>
+  <label>Job Title: <input type="text" id="jobTitle" value="SC"></label><br>
   <button type="submit">Send to Genesys</button>
 </form>
 <div id="status"></div>
 <script>
 document.getElementById('attrForm').onsubmit = function(e) {
     e.preventDefault();
-    // Get values (id ต้องตรงกับ input)
-    var name = document.getElementById('name').value || '';
+    var fullName = document.getElementById('fullName').value || '';
     var email = document.getElementById('email').value || '';
-    var mobile = document.getElementById('mobile').value || '';
-    var job = document.getElementById('title').value || '';
-    // Genesys Predictive Engagement API
+    var phone = document.getElementById('phone').value || '';
+    var jobTitle = document.getElementById('jobTitle').value || '';
+    // หากต้องการแยก firstName / lastName ก็ทำได้
+    var firstName = fullName.split(' ')[0] || '';
+    var lastName = fullName.split(' ')[1] || '';
+    // Genesys API: ใส่ key ตามฟิลด์มาตรฐาน
     if (typeof Journey === "function") {
-        Journey('attribute', { name: 'Name', value: name });
-        Journey('attribute', { name: 'Work Email', value: email });
-        Journey('attribute', { name: 'Mobile', value: mobile });
-        Journey('attribute', { name: 'Title', value: job });
-        document.getElementById('status').innerText = 'Attributes sent to Genesys!';
+        Journey('attribute', { name: 'email', value: email });
+        Journey('attribute', { name: 'phoneNumber', value: phone });
+        Journey('attribute', { name: 'fullName', value: fullName });
+        Journey('attribute', { name: 'firstName', value: firstName });
+        Journey('attribute', { name: 'lastName', value: lastName });
+        Journey('attribute', { name: 'jobTitle', value: jobTitle });
+        document.getElementById('status').innerText = 'Standard attributes sent!';
     } else {
         document.getElementById('status').innerText = 'Journey library not loaded.';
     }
