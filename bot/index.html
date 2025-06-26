@@ -1,44 +1,79 @@
 <!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"/></head>
-<body>
-  <div id="log">Session starting…</div>
-  <input id="in"/><button id="btn">Send</button>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Custom Launcher Demo</title>
+  <style>
+    /* your custom launcher styling */
+    #custom-launcher {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #0073e6;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      display: none;    /* hidden until widget is ready */
+    }
+  </style>
+
+  <!-- 1) Load the Genesys Web Messenger widget -->
   <script>
-    const deploymentId = 'd7a4ab4b-5374-48dc-abff-20e94d283345';
-    const region       = 'mypurecloud.jp';
-    const socket       = new WebSocket(
-      `wss://webmessaging.${region}/v1?deploymentId=${deploymentId}`
-    );
-    let convId, partId;
-    const logEl = document.getElementById('log');
-    const log = (who, txt) => {
-      const d = document.createElement('div');
-      d.textContent = (who==='you'?'You: ':'Agent: ') + txt;
-      logEl.appendChild(d);
-    };
-    socket.onopen = () => socket.send(JSON.stringify({
-      action:'configureSession', deploymentId, tracingId:crypto.randomUUID()
-    }));
-    socket.onmessage = ({data}) => {
-      const m = JSON.parse(data);
-      if (m.action==='configureSessionResponse') {
-        convId=m.body.conversationId; partId=m.body.participantId;
-        log('agent','Session configured. Say hi!');
+    window.genesys = {
+      widgets: {
+        main: { debug: false },
+        webMessaging: {
+          transport: {
+            type:     'purecloud-v2-sockets',
+            dataURL:  'https://api.mypurecloud.jp',
+            deploymentId: 'd7a4ab4b-5374-48dc-abff-20e94d283345'
+          }
+        }
       }
-      if (m.type==='message'&&m.body?.text) log('agent',m.body.text);
     };
-    document.getElementById('btn').onclick = () => {
-      const txt = document.getElementById('in').value.trim();
-      if (!convId||!txt) return;
-      socket.send(JSON.stringify({
-        action:'onMessage', conversationId:convId,
-        participantId:partId,
-        body:{text:txt}, contentType:'text/plain'
-      }));
-      log('you',txt);
-      document.getElementById('in').value='';
-    };
+    (function(){
+      var s = document.createElement('script');
+      s.src = 'https://apps.mypurecloud.jp/widgets/genesys.min.js';
+      s.async = true;
+      document.head.appendChild(s);
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- 2) Your custom launcher button -->
+  <button id="custom-launcher">💬</button>
+
+  <script>
+    const launcher = document.getElementById('custom-launcher');
+    let isOpen = false;
+
+    // 3) Show the launcher once the messenger is ready
+    Genesys('subscribe', 'Messenger.ready', () => {
+      launcher.style.display = 'block';
+    });
+
+    // 4) Keep track of open/close so your icon can toggle
+    Genesys('subscribe', 'Messenger.windowOpened', () => {
+      isOpen = true;
+      launcher.textContent = '🔽';    // arrow down when open
+    });
+    Genesys('subscribe', 'Messenger.windowClosed', () => {
+      isOpen = false;
+      launcher.textContent = '💬';    // chat bubble when closed
+    });
+
+    // 5) Wire up your button to show/hide the widget
+    launcher.addEventListener('click', () => {
+      if (isOpen) {
+        Genesys('command', 'Messenger.hide');
+      } else {
+        Genesys('command', 'Messenger.show');
+      }
+    });
   </script>
 </body>
 </html>
